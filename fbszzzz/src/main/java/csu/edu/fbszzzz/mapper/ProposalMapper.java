@@ -14,20 +14,21 @@ public interface ProposalMapper {
     /**
      * 插入新提案
      */
-    @Insert("INSERT INTO proposal (title, description, proposer_id, vote_type, max_choices, status, start_time, end_time, create_time) " +
-            "VALUES (#{title}, #{description}, #{proposerId}, #{voteType}, #{maxChoices}, #{status}, #{startTime}, #{endTime}, #{createTime})")
+    @Insert("INSERT INTO proposal (title, description, proposer_id, vote_type, max_choices, winners_count, status, start_time, end_time, create_time) " +
+            "VALUES (#{title}, #{description}, #{proposerId}, #{voteType}, #{maxChoices}, #{winnersCount}, #{status}, #{startTime}, #{endTime}, #{createTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Proposal proposal);
 
     /**
      * 根据ID查询提案
      */
-    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, status, start_time, end_time, create_time " +
+    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, winners_count, status, start_time, end_time, create_time " +
             "FROM proposal WHERE id = #{id}")
     @Results({
         @Result(property = "proposerId", column = "proposer_id"),
         @Result(property = "voteType", column = "vote_type"),
         @Result(property = "maxChoices", column = "max_choices"),
+        @Result(property = "winnersCount", column = "winners_count"),
         @Result(property = "startTime", column = "start_time"),
         @Result(property = "endTime", column = "end_time"),
         @Result(property = "createTime", column = "create_time")
@@ -37,12 +38,13 @@ public interface ProposalMapper {
     /**
      * 查询所有提案
      */
-    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, status, start_time, end_time, create_time " +
+    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, winners_count, status, start_time, end_time, create_time " +
             "FROM proposal ORDER BY create_time DESC")
     @Results({
         @Result(property = "proposerId", column = "proposer_id"),
         @Result(property = "voteType", column = "vote_type"),
         @Result(property = "maxChoices", column = "max_choices"),
+        @Result(property = "winnersCount", column = "winners_count"),
         @Result(property = "startTime", column = "start_time"),
         @Result(property = "endTime", column = "end_time"),
         @Result(property = "createTime", column = "create_time")
@@ -52,12 +54,13 @@ public interface ProposalMapper {
     /**
      * 根据状态查询提案
      */
-    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, status, start_time, end_time, create_time " +
+    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, winners_count, status, start_time, end_time, create_time " +
             "FROM proposal WHERE status = #{status} ORDER BY create_time DESC")
     @Results({
         @Result(property = "proposerId", column = "proposer_id"),
         @Result(property = "voteType", column = "vote_type"),
         @Result(property = "maxChoices", column = "max_choices"),
+        @Result(property = "winnersCount", column = "winners_count"),
         @Result(property = "startTime", column = "start_time"),
         @Result(property = "endTime", column = "end_time"),
         @Result(property = "createTime", column = "create_time")
@@ -67,12 +70,13 @@ public interface ProposalMapper {
     /**
      * 根据提案人ID查询提案
      */
-    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, status, start_time, end_time, create_time " +
+    @Select("SELECT id, title, description, proposer_id, vote_type, max_choices, winners_count, status, start_time, end_time, create_time " +
             "FROM proposal WHERE proposer_id = #{proposerId} ORDER BY create_time DESC")
     @Results({
         @Result(property = "proposerId", column = "proposer_id"),
         @Result(property = "voteType", column = "vote_type"),
         @Result(property = "maxChoices", column = "max_choices"),
+        @Result(property = "winnersCount", column = "winners_count"),
         @Result(property = "startTime", column = "start_time"),
         @Result(property = "endTime", column = "end_time"),
         @Result(property = "createTime", column = "create_time")
@@ -83,7 +87,7 @@ public interface ProposalMapper {
      * 更新提案信息
      */
     @Update("UPDATE proposal SET title = #{title}, description = #{description}, " +
-            "vote_type = #{voteType}, max_choices = #{maxChoices}, status = #{status}, " +
+            "vote_type = #{voteType}, max_choices = #{maxChoices}, winners_count = #{winnersCount}, status = #{status}, " +
             "start_time = #{startTime}, end_time = #{endTime} WHERE id = #{id}")
     int update(Proposal proposal);
 

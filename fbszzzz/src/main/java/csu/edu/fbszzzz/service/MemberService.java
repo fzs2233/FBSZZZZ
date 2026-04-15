@@ -21,9 +21,33 @@ public class MemberService {
 
     @Autowired
     private RoleService roleService;
-    
+
+    /**
+     * 成员登录
+     * 
+     * @param username 用户名
+     * @param password 密码
+     * @return 登录成功的成员信息，失败返回null
+     */
+    public Member login(String username, String password) {
+        Member member = memberMapper.findByUsername(username);
+        if (member == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        if (member.getStatus() != null && member.getStatus() == 0) {
+            throw new RuntimeException("账户已被禁用");
+        }
+        if (!member.getPassword().equals(password)) {
+            throw new RuntimeException("密码错误");
+        }
+        // 清除密码，不返回给前端
+        member.setPassword(null);
+        return member;
+    }
+
     /**
      * 成员注册
+     * 
      * @param member 成员信息
      * @return 注册成功后的成员（包含生成的ID）
      */
@@ -34,48 +58,52 @@ public class MemberService {
         if (existingMember != null) {
             throw new RuntimeException("用户名已存在: " + member.getUsername());
         }
-        
+
         // 设置注册时间和默认状态
         member.setRegisterTime(LocalDateTime.now());
         member.setStatus(1); // 默认正常状态
         if (member.getRoleId() == null) {
             member.setRoleId(2L); // 默认为普通成员角色
         }
-        
+
         // 插入数据库
         memberMapper.insert(member);
-        
+
         return member;
     }
-    
+
     /**
      * 根据ID查询成员
+     * 
      * @param id 成员ID
      * @return 成员信息
      */
     public Member findById(Long id) {
         return memberMapper.findById(id);
     }
-    
+
     /**
      * 根据用户名查询成员
+     * 
      * @param username 用户名
      * @return 成员信息
      */
     public Member findByUsername(String username) {
         return memberMapper.findByUsername(username);
     }
-    
+
     /**
      * 查询所有成员
+     * 
      * @return 成员列表
      */
     public List<Member> findAll() {
         return memberMapper.findAll();
     }
-    
+
     /**
      * 更新成员信息
+     * 
      * @param member 成员信息
      * @return 更新结果
      */
@@ -83,9 +111,10 @@ public class MemberService {
     public boolean update(Member member) {
         return memberMapper.update(member) > 0;
     }
-    
+
     /**
      * 删除成员
+     * 
      * @param id 成员ID
      * @return 删除结果
      */
@@ -96,8 +125,9 @@ public class MemberService {
 
     /**
      * 修改用户角色
-     * @param memberId 要修改的用户ID
-     * @param roleId 新角色ID
+     * 
+     * @param memberId   要修改的用户ID
+     * @param roleId     新角色ID
      * @param operatorId 操作者ID
      * @return 修改结果
      */

@@ -63,6 +63,9 @@ public class ProposalService {
         if (proposal.getMaxChoices() == null) {
             proposal.setMaxChoices(1);
         }
+        if (proposal.getWinnersCount() == null) {
+            proposal.setWinnersCount(1); // 默认取票数第1名作为获胜者
+        }
 
         proposalMapper.insert(proposal);
 
@@ -222,13 +225,34 @@ public class ProposalService {
     }
 
     /**
-     * 获取投票结果
+     * 获取投票结果（按得票数降序排序）
      */
     public List<VoteOption> getVoteResult(Long proposalId) {
         List<VoteOption> options = voteOptionMapper.findByProposalId(proposalId);
         // 按得票数降序排序
         options.sort((a, b) -> b.getVoteCount().compareTo(a.getVoteCount()));
         return options;
+    }
+
+    /**
+     * 获取获胜选项（根据winnersCount取前N名）
+     */
+    public List<VoteOption> getWinners(Long proposalId) {
+        Proposal proposal = proposalMapper.findById(proposalId);
+        if (proposal == null) {
+            throw new RuntimeException("提案不存在");
+        }
+
+        List<VoteOption> options = voteOptionMapper.findByProposalId(proposalId);
+        // 按得票数降序排序
+        options.sort((a, b) -> b.getVoteCount().compareTo(a.getVoteCount()));
+
+        // 取前N名
+        int winnersCount = proposal.getWinnersCount() != null ? proposal.getWinnersCount() : 1;
+        if (winnersCount > options.size()) {
+            winnersCount = options.size();
+        }
+        return options.subList(0, winnersCount);
     }
 
     /**

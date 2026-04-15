@@ -39,6 +39,11 @@ public class Proposal {
     private Integer maxChoices;
 
     /**
+     * 获胜选项数量（取票数前N名作为最终结果）
+     */
+    private Integer winnersCount;
+
+    /**
      * 状态：0-草稿，1-进行中，2-已结束
      */
     private Integer status;

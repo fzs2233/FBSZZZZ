@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 成员控制器
@@ -14,13 +17,43 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/members")
 public class MemberController {
-    
+
     @Autowired
     private MemberService memberService;
-    
+
+    /**
+     * 成员登录接口
+     * POST /api/members/login
+     * 
+     * @param loginRequest 登录请求体（包含username和password）
+     * @return 登录结果（包含token和memberId）
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            Member member = memberService.login(loginRequest.getUsername(), loginRequest.getPassword());
+            if (member == null) {
+                return ResponseEntity.status(401).body("用户名或密码错误");
+            }
+
+            // 生成 token（实际项目中应使用 JWT）
+            String token = UUID.randomUUID().toString();
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("token", token);
+            result.put("memberId", member.getId());
+            result.put("member", member);
+
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     /**
      * 成员注册接口
      * POST /api/members/register
+     * 
      * @param member 成员信息
      * @return 注册结果
      */
@@ -35,10 +68,35 @@ public class MemberController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
+    /**
+     * 登录请求体
+     */
+    public static class LoginRequest {
+        private String username;
+        private String password;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
+
     /**
      * 根据ID查询成员
      * GET /api/members/{id}
+     * 
      * @param id 成员ID
      * @return 成员信息
      */
@@ -51,10 +109,11 @@ public class MemberController {
         }
         return ResponseEntity.notFound().build();
     }
-    
+
     /**
      * 查询所有成员
      * GET /api/members
+     * 
      * @return 成员列表
      */
     @GetMapping
@@ -64,11 +123,12 @@ public class MemberController {
         members.forEach(m -> m.setPassword(null));
         return ResponseEntity.ok(members);
     }
-    
+
     /**
      * 更新成员信息
      * PUT /api/members/{id}
-     * @param id 成员ID
+     * 
+     * @param id     成员ID
      * @param member 更新的成员信息
      * @return 更新结果
      */
@@ -81,10 +141,11 @@ public class MemberController {
         }
         return ResponseEntity.badRequest().body("更新失败");
     }
-    
+
     /**
      * 删除成员
      * DELETE /api/members/{id}
+     * 
      * @param id 成员ID
      * @return 删除结果
      */
@@ -100,8 +161,9 @@ public class MemberController {
     /**
      * 修改用户角色
      * PUT /api/members/{id}/role
-     * @param id 成员ID
-     * @param request 角色请求体
+     * 
+     * @param id         成员ID
+     * @param request    角色请求体
      * @param operatorId 操作者ID（从请求头获取）
      * @return 修改结果
      */
@@ -127,7 +189,12 @@ public class MemberController {
     public static class RoleUpdateRequest {
         private Long roleId;
 
-        public Long getRoleId() { return roleId; }
-        public void setRoleId(Long roleId) { this.roleId = roleId; }
+        public Long getRoleId() {
+            return roleId;
+        }
+
+        public void setRoleId(Long roleId) {
+            this.roleId = roleId;
+        }
     }
 }
